@@ -31,15 +31,8 @@ namespace RhysG.MSBuild.Azure
 
 		public bool Execute()
 		{
-			CloudStorageAccount account;
-
-			if (!CloudStorageAccount.TryParse(ConnectionString, out account)) return false;
-
-			var client = account.CreateCloudBlobClient();
-
-			var container = client.GetContainerReference(ContainerName);
-			container.CreateIfNotExists();
-			container.SetPermissions(GetPermissions());
+			var container = GetBloblContainer();
+			if (container == null) return false;
 
 			foreach (var file in Files.Select(fileItem => new FileInfo(fileItem.ItemSpec)))
 			{
@@ -56,22 +49,7 @@ namespace RhysG.MSBuild.Azure
 				{
 				}
 
-				var lastModified = DateTime.MinValue;
-
-				if (!String.IsNullOrWhiteSpace(blob.Metadata["LastModified"]))
-				{
-					var timeTicks = long.Parse(blob.Metadata["LastModified"]);
-					lastModified = new DateTime(timeTicks, DateTimeKind.Utc);
-				}
-
-				if (lastModified < file.LastWriteTimeUtc)
-				{
-					BuildEngine.LogMessageEvent(
-						new BuildMessageEventArgs(String.Format("Updating: {0} - Local file is older than remote, skipping", file.Name),
-							String.Empty,
-							"CopyToAzureBlobStorageTask", MessageImportance.Normal));
-					continue;
-				}
+				if (!IsRemoteFileOlder(file, blob)) continue;
 
 				blob.UploadFromFile(file.FullName, FileMode.Create);
 
@@ -90,6 +68,43 @@ namespace RhysG.MSBuild.Azure
 			}
 
 			return true;
+		}
+
+		private bool IsRemoteFileOlder(FileSystemInfo file, ICloudBlob blob)
+		{
+			var lastModified = DateTime.MinValue;
+
+			if (!String.IsNullOrWhiteSpace(blob.Metadata["LastModified"]))
+			{
+				var timeTicks = long.Parse(blob.Metadata["LastModified"]);
+				lastModified = new DateTime(timeTicks, DateTimeKind.Utc);
+			}
+
+			if (lastModified < file.LastWriteTimeUtc)
+			{
+				BuildEngine.LogMessageEvent(
+					new BuildMessageEventArgs(String.Format("Updating: {0} - Local file is older than remote, skipping", file.Name),
+						String.Empty,
+						"CopyToAzureBlobStorageTask", MessageImportance.Normal));
+				return false;
+			}
+
+			return true;
+		}
+
+		private CloudBlobContainer GetBloblContainer()
+		{
+			CloudStorageAccount account;
+
+			if (!CloudStorageAccount.TryParse(ConnectionString, out account)) return null;
+
+			var client = account.CreateCloudBlobClient();
+
+			var container = client.GetContainerReference(ContainerName);
+			container.CreateIfNotExists();
+			container.SetPermissions(GetPermissions());
+
+			return container;
 		}
 
 		private BlobContainerPermissions GetPermissions()
