@@ -47,6 +47,10 @@ selected above to a container named *scripts*:
 		<td>ContentType</td>
 		<td><em>Optional</em> The content type for Azure to serve the files as</td>
 	</tr>
+    <tr>
+		<td>ContainerPermission</td>
+		<td><em>Optional</em> The permission for the BlobContainer. Can be Off/Container/Blob. Defaults to Off.</td>
+	</tr>
 </table>
 
 ## License ##
