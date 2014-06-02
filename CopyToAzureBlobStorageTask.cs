@@ -82,7 +82,7 @@ namespace RhysG.MSBuild.Azure
 				lastModified = new DateTime(timeTicks, DateTimeKind.Utc);
 			}
 
-			if (lastModified >= file.LastWriteTimeUtc) return true;
+			if (lastModified <= file.LastWriteTimeUtc) return true;
 
 			BuildEngine.LogMessageEvent(
 				new BuildMessageEventArgs(String.Format("Updating: {0} - Local file is older than remote, skipping", file.Name),
