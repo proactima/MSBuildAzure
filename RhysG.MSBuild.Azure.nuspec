@@ -15,7 +15,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\RhysG.MSBuild.Azure.dll" target="lib\net40" />
-    <file src="bin\Release\RhysG.MSBuild.Azure.pdb" target="lib\net40" />
+    <file src="bin\Release\RhysG.MSBuild.Azure.dll" target="lib\net45" />
+    <file src="bin\Release\RhysG.MSBuild.Azure.pdb" target="lib\net45" />
+    <file src="bin\Release\Microsoft.WindowsAzure.Storage.dll" target="lib\net45" />
+    <file src="bin\Release\Newtonsoft.Json.dll" target="lib\net45" />
   </files>
 </package>
