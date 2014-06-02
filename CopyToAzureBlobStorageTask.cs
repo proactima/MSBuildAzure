@@ -74,7 +74,9 @@ namespace RhysG.MSBuild.Azure
 		{
 			var lastModified = DateTime.MinValue;
 
-			if (!String.IsNullOrWhiteSpace(blob.Metadata["LastModified"]))
+			if (blob != null && 
+				blob.Metadata.ContainsKey("LastModified") && 
+				!String.IsNullOrWhiteSpace(blob.Metadata["LastModified"]))
 			{
 				var timeTicks = long.Parse(blob.Metadata["LastModified"]);
 				lastModified = new DateTime(timeTicks, DateTimeKind.Utc);
