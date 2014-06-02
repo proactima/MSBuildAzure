@@ -49,22 +49,23 @@ namespace RhysG.MSBuild.Azure
 				{
 				}
 
-				if (!IsRemoteFileOlder(file, blob)) continue;
+				if (IsRemoteFileOlder(file, blob))
+				{
+					blob.UploadFromFile(file.FullName, FileMode.Create);
 
-				blob.UploadFromFile(file.FullName, FileMode.Create);
+					blob.Properties.ContentType = ContentType;
 
-				blob.Properties.ContentType = ContentType;
+					if (!String.IsNullOrWhiteSpace(ContentEncoding))
+						blob.Properties.ContentEncoding = ContentEncoding;
 
-				if (!String.IsNullOrWhiteSpace(ContentEncoding))
-					blob.Properties.ContentEncoding = ContentEncoding;
+					blob.Metadata["LastModified"] = file.LastWriteTimeUtc.Ticks.ToString();
+					blob.SetMetadata();
+					blob.SetProperties();
 
-				blob.Metadata["LastModified"] = file.LastWriteTimeUtc.Ticks.ToString();
-				blob.SetMetadata();
-				blob.SetProperties();
-
-				BuildEngine.LogMessageEvent(new BuildMessageEventArgs(String.Format("Updating: {0} - Uploaded!", file.Name),
-					String.Empty,
-					"CopyToAzureBlobStorageTask", MessageImportance.High));
+					BuildEngine.LogMessageEvent(new BuildMessageEventArgs(String.Format("Updating: {0} - Uploaded!", file.Name),
+						String.Empty,
+						"CopyToAzureBlobStorageTask", MessageImportance.High));
+				}
 			}
 
 			return true;
@@ -72,24 +73,24 @@ namespace RhysG.MSBuild.Azure
 
 		private bool IsRemoteFileOlder(FileSystemInfo file, ICloudBlob blob)
 		{
-			var lastModified = DateTime.MinValue;
+			var remoteLastModified = DateTime.MinValue;
 
-			if (blob != null && 
-				blob.Metadata.ContainsKey("LastModified") && 
+			if (blob != null &&
+				blob.Metadata.ContainsKey("LastModified") &&
 				!String.IsNullOrWhiteSpace(blob.Metadata["LastModified"]))
 			{
 				var timeTicks = long.Parse(blob.Metadata["LastModified"]);
-				lastModified = new DateTime(timeTicks, DateTimeKind.Utc);
+				remoteLastModified = new DateTime(timeTicks, DateTimeKind.Utc);
 			}
 
-			if (lastModified <= file.LastWriteTimeUtc) return true;
+			if (remoteLastModified >= file.LastWriteTimeUtc) return false;
 
 			BuildEngine.LogMessageEvent(
 				new BuildMessageEventArgs(String.Format("Updating: {0} - Local file is older than remote, skipping", file.Name),
 					String.Empty,
 					"CopyToAzureBlobStorageTask", MessageImportance.High));
 
-			return false;
+			return true;
 		}
 
 		private CloudBlobContainer GetBloblContainer()
@@ -111,8 +112,8 @@ namespace RhysG.MSBuild.Azure
 		{
 			BlobContainerPublicAccessType accessType;
 			return Enum.TryParse(ContainerPermission, out accessType)
-				? new BlobContainerPermissions {PublicAccess = accessType}
-				: new BlobContainerPermissions {PublicAccess = BlobContainerPublicAccessType.Off};
+				? new BlobContainerPermissions { PublicAccess = accessType }
+				: new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Off };
 		}
 	}
 }
