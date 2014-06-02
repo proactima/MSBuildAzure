@@ -37,7 +37,7 @@ namespace RhysG.MSBuild.Azure
 			foreach (var file in Files.Select(fileItem => new FileInfo(fileItem.ItemSpec)))
 			{
 				BuildEngine.LogMessageEvent(new BuildMessageEventArgs(String.Format("Updating: {0}", file.Name), String.Empty,
-					"CopyToAzureBlobStorageTask", MessageImportance.Normal));
+					"CopyToAzureBlobStorageTask", MessageImportance.High));
 
 				var blob = container.GetBlockBlobReference(file.Name);
 
@@ -64,7 +64,7 @@ namespace RhysG.MSBuild.Azure
 
 				BuildEngine.LogMessageEvent(new BuildMessageEventArgs(String.Format("Updating: {0} - Uploaded!", file.Name),
 					String.Empty,
-					"CopyToAzureBlobStorageTask", MessageImportance.Normal));
+					"CopyToAzureBlobStorageTask", MessageImportance.High));
 			}
 
 			return true;
@@ -87,7 +87,7 @@ namespace RhysG.MSBuild.Azure
 			BuildEngine.LogMessageEvent(
 				new BuildMessageEventArgs(String.Format("Updating: {0} - Local file is older than remote, skipping", file.Name),
 					String.Empty,
-					"CopyToAzureBlobStorageTask", MessageImportance.Normal));
+					"CopyToAzureBlobStorageTask", MessageImportance.High));
 
 			return false;
 		}
