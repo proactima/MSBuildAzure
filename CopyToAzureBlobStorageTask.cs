@@ -86,12 +86,15 @@ namespace RhysG.MSBuild.Azure
 				remoteLastModified = new DateTime(timeTicks, DateTimeKind.Utc);
 			}
 
-			if (remoteLastModified >= file.LastWriteTimeUtc) return false;
-
-			BuildEngine.LogMessageEvent(
+			if (remoteLastModified >= file.LastWriteTimeUtc)
+			{
+				BuildEngine.LogMessageEvent(
 				new BuildMessageEventArgs(String.Format("Updating: {0} - Local file is older than remote, skipping", file.Name),
 					String.Empty,
 					"CopyToAzureBlobStorageTask", MessageImportance.High));
+
+				return false;
+			}
 
 			return true;
 		}
