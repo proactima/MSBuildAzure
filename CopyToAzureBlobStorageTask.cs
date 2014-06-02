@@ -51,7 +51,10 @@ namespace RhysG.MSBuild.Azure
 
 				if (IsRemoteFileOlder(file, blob))
 				{
-					blob.UploadFromFile(file.FullName, FileMode.Create);
+					using (var filename = File.OpenRead(file.FullName))
+					{
+						blob.UploadFromStream(filename);
+					}
 
 					blob.Properties.ContentType = ContentType;
 
