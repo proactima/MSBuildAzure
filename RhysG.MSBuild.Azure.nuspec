@@ -15,7 +15,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\bin\RhysG.MSBuild.Azure.dll" target="lib\net40" />
-    <file src="..\..\bin\RhysG.MSBuild.Azure.pdb" target="lib\net40" />
+    <file src="..\bin\RhysG.MSBuild.Azure.dll" target="lib\net40" />
+    <file src="..\bin\RhysG.MSBuild.Azure.pdb" target="lib\net40" />
   </files>
 </package>
