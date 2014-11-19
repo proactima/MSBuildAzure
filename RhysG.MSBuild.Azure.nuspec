@@ -10,7 +10,7 @@
     <description>Build task to upload files to Azure Blob</description>
     <copyright>Copyright 2014</copyright>
     <dependencies>
-      <dependency id="WindowsAzure.Storage" version="3.1" />
+      <dependency id="WindowsAzure.Storage" version="4.3" />
       <dependency id="Newtonsoft.Json" version="6.0"  />
     </dependencies>
   </metadata>
